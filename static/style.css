@@ -1,0 +1,37 @@
+table, td {
+    border: 1px solid #DDDDDD;
+    border-spacing: 0px;
+    border-collapse: separate;
+}
+
+tr {
+    height: 40px;
+}
+
+td {
+    width: 40px;
+}
+
+td.top {
+    border-top: 3px solid black;
+}
+td.bottom {
+    border-bottom: 3px solid black;
+}
+td.left {
+    border-left: 3px solid black;
+}
+td.right {
+    border-right: 3px solid black;
+}
+
+td.hints {
+    font-size: 7px;
+    text-align: left;
+    vertical-align: text-top;
+}
+
+td.solved {
+    font-size: 24px;
+    text-align: center;
+}
