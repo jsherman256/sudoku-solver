@@ -40,7 +40,6 @@ class Square:
     # Returns:      True if we've solved the Square just now
     #
     def reduce(self, s):
-        print("Values: {} ({}); Reductor: {} ({})".format(self.values, type(self.values), s, type(s)))
         self.values -= set(s)
         return self.isSolved()
 
@@ -56,6 +55,19 @@ class Square:
             return ('','')
         else:
             return ('hints', ' '.join(str(x) for x in self.values))
+
+   
+    # getKnownValues    Given a list of Squares, create a set<int> of all solved values
+    #
+    # Inputs:
+    #       squares     A list of Square objects
+    #
+    # Returns:          A set<int> of all solved values from the list of Squares provided
+    #
+    @staticmethod
+    def getKnownValues(squares):
+        knownValues = set([list(s.values)[0] for s in squares if s.isSolved()])
+        return knownValues
 
 
 
@@ -185,14 +197,6 @@ class Grid:
 
 
 
-# Given a 1D or 2D list of squares, create a set of all solved values in those squares
-def getAllSolved(l):
-    if type(l[0]) == list:
-        return set([i for sub in l for i in sub if i.isSolved()])
-    else:
-        return set([i for i in l if i.isSolved()])
-
-
 def solve(g):
     for i in range(0, n):
         for j in range(0, n):
@@ -200,21 +204,26 @@ def solve(g):
                 continue
             print("Solving ({},{})".format(i,j))
             
-            r = getAllSolved(g.getRow(i,j))
+            r = Square.getKnownValues(g.getRow(i,j))
             print("\tRemoving {} based on row".format(r))
             if g.reduce(i,j,r):
                 print("\tSolved!")
+                print("\tNow: {}".format(g.get(i,j).values))
+                continue
 
-            r = getAllSolved(g.getCol(i,j))
+            r = Square.getKnownValues(g.getCol(i,j))
             print("\tRemoving {} based on col".format(r))
             if g.reduce(i,j,r):
                 print("\tSolved!")
+                print("\tNow: {}".format(g.get(i,j).values))
+                continue
                 
-            r = getAllSolved(g.getSub(i,j))
+            r = Square.getKnownValues(g.getSub(i,j))
             print("\tRemoving {} based on sub".format(r))
             if g.reduce(i,j,r):
                 print("\tSolved!")
+                print("\tNow: {}".format(g.get(i,j).values))
+                continue
 
-            print("\tNow: {}".format(g.get(i,j)))
-
+            print("\tNow: {}".format(g.get(i,j).values))
 

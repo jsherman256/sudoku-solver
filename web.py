@@ -12,3 +12,9 @@ def main():
 def load(p):
     grid = Grid("puzzles/" + p)
     return grid.html()
+
+@app.route("/solve/<p>")
+def s(p):
+    grid = Grid("puzzles/" + p)
+    solve(grid)
+    return grid.html()
