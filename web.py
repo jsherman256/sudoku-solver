@@ -11,10 +11,10 @@ def main():
 @app.route("/puzzle/<p>")
 def load(p):
     grid = Grid("puzzles/" + p)
-    return grid.html()
+    return grid.html(p)
 
-@app.route("/solve/<p>")
-def s(p):
+@app.route("/solve/<p>/<d>")
+def s(p, d):
     grid = Grid("puzzles/" + p)
-    solve(grid)
-    return grid.html()
+    solve(grid, int(d))
+    return grid.html(p, int(d))

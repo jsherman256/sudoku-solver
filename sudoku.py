@@ -91,7 +91,7 @@ class Grid:
 
     # html          Generate HTML representation of the sudoku grid
     #
-    def html(self):
+    def html(self, puzzle, solveCount = 0):
         h = '<link rel="stylesheet" type="text/css" href="/static/style.css">'
         h += "<table>\n"
         for i,row in enumerate(self._grid):
@@ -116,6 +116,7 @@ class Grid:
                 h += "\t\t<td class='{}'>{}</td>\n".format(' '.join(classes), cellValue)
             h += "\t</tr>\n"
         h += "</table>"
+        h += "<br /><a href='{}'>Solve (more)</a>".format("/solve/{}/{}".format(puzzle, solveCount+1))
         return h
 
 
@@ -196,34 +197,42 @@ class Grid:
         return True
 
 
+# ruleOutBasedOnKnowns  Reduce based on solved Squares in the same row/column/subgrid
+#
+# Inputs:
+#               i       Row index of Square to reduce
+#               j       Column index of Square to reduce
+#
+# Returns:  True if we've just solved the Square
+#
+def ruleOutBasedOnKnowns(g, i, j):
+    r = Square.getKnownValues(g.getRow(i,j))
+    print("\tRemoving {} based on row".format(r))
+    if g.reduce(i,j,r):
+        return True
 
-def solve(g):
-    for i in range(0, n):
-        for j in range(0, n):
-            if g.get(i,j).isSolved():
-                continue
-            print("Solving ({},{})".format(i,j))
-            
-            r = Square.getKnownValues(g.getRow(i,j))
-            print("\tRemoving {} based on row".format(r))
-            if g.reduce(i,j,r):
-                print("\tSolved!")
-                print("\tNow: {}".format(g.get(i,j).values))
-                continue
+    r = Square.getKnownValues(g.getCol(i,j))
+    print("\tRemoving {} based on col".format(r))
+    if g.reduce(i,j,r):
+        return True
+        
+    r = Square.getKnownValues(g.getSub(i,j))
+    print("\tRemoving {} based on sub".format(r))
+    if g.reduce(i,j,r):
+        return True
 
-            r = Square.getKnownValues(g.getCol(i,j))
-            print("\tRemoving {} based on col".format(r))
-            if g.reduce(i,j,r):
-                print("\tSolved!")
-                print("\tNow: {}".format(g.get(i,j).values))
-                continue
-                
-            r = Square.getKnownValues(g.getSub(i,j))
-            print("\tRemoving {} based on sub".format(r))
-            if g.reduce(i,j,r):
-                print("\tSolved!")
-                print("\tNow: {}".format(g.get(i,j).values))
-                continue
+    return False
 
-            print("\tNow: {}".format(g.get(i,j).values))
+
+
+
+def solve(g, d):
+    for x in range(0, d):
+        for i in range(0, n):
+            for j in range(0, n):
+                if g.get(i,j).isSolved():
+                    continue
+                print("Solving ({},{})".format(i,j))
+                if ruleOutBasedOnKnowns(g, i,j) is True:
+                    continue
 
