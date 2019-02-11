@@ -69,6 +69,26 @@ class Square:
         knownValues = set([list(s.values)[0] for s in squares if s.isSolved()])
         return knownValues
 
+    # getTwins          Given a list of Squares, find any twins (two cells with
+    #                   identical pair possibilities (e.g. both can only be 4, 7)
+    #
+    # Inputs:
+    #       squares     A list of Square objects
+    #
+    # Returns:          A thruple: (list<int> of twin values, first twin Sqaure,
+    #                               second twin Sqaure)
+    #
+    #TODO this could be made to return ALL sets of twins
+    #
+    @staticmethod
+    def getTwins(squares):
+        for a,first in enumerate(squares):
+            if len(first.values) == 2:
+                for b,second in enumerate(squares[a+1:]):
+                    if first.values == second.values:
+                        return (list(first.values), first, second)
+
+        return (None, None, None)
 
 
 class Grid:
@@ -200,6 +220,7 @@ class Grid:
 # ruleOutBasedOnKnowns  Reduce based on solved Squares in the same row/column/subgrid
 #
 # Inputs:
+#               g       Grid to work on
 #               i       Row index of Square to reduce
 #               j       Column index of Square to reduce
 #
@@ -224,15 +245,61 @@ def ruleOutBasedOnKnowns(g, i, j):
     return False
 
 
+# removeTwinsRow        Given a Square, remove any twins from that row
+#
+# Inputs:
+#               g       Grid to work on
+#               i       Index for row to find/remove twins from
+#
+def removeTwinsRow(g, i):
+    row = g.getRow(i, 0)
+    (twins, first, second) = Square.getTwins(row)
+    if twins is None:
+        return
+
+    print("Found {} in row {}".format(twins, i))
+    for square in row:
+        if square is not first and square is not second:
+            square.reduce(twins)
+
+
+# removeTwinsCol        Given a Square, remove any twins from that column
+#
+# Inputs:
+#               g       Grid to work on
+#               j       Index for column to find/remove twins from
+#
+def removeTwinsCol(g, j):
+    col = g.getCol(0, j)
+    (twins, first, second) = Square.getTwins(col)
+    if twins is None:
+        return
+
+    print("Found {} in column {}".format(twins, j))
+    for square in col:
+        if square is not first and square is not second:
+            square.reduce(twins)
 
 
 def solve(g, d):
+    # Iterate the grid as many times as requested
     for x in range(0, d):
+        # Check each cell
         for i in range(0, n):
             for j in range(0, n):
+                # Skip cells that are already solved
                 if g.get(i,j).isSolved():
                     continue
+
                 print("Solving ({},{})".format(i,j))
+                
+                # If we've just solved the cell, move on
                 if ruleOutBasedOnKnowns(g, i,j) is True:
                     continue
 
+        # Remove twins
+        for i in range(0, n):
+            removeTwinsRow(g, i)
+
+        for j in range(0, n):
+            removeTwinsCol(g, j)
