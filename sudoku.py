@@ -1,5 +1,5 @@
-n        = 9
-minigrid = 3
+gridSize     = 9
+miniGridSize = 3
 
 import math
 
@@ -10,7 +10,7 @@ class Square:
     # __init__      initialize Square object
     # 
     # Inputs:
-    #           n   size of grid (and number of possible values for Square)
+    #           gridSize   size of grid (and number of possible values for Square)
     #           v   value of Square (if known). Set to None or ' ' if unknown
     #
     def __init__(self, n, v = None):
@@ -18,6 +18,12 @@ class Square:
             self.values = set(range(1,n+1))
         else:
             self.values = set([int(v)])
+
+
+    # set           Set value of Square
+    #
+    def set(self, v):
+        self.values = set([v])
   
 
     # isSolved      return True if the Square is solved
@@ -29,7 +35,7 @@ class Square:
     # isUnsolved    Return true if the square is *completely* unsolved
     #
     def isUnsolved(self):
-        return len(self.values) == n
+        return len(self.values) == gridSize
 
 
     # reduce        Remove possible values we've ruled out
@@ -104,9 +110,9 @@ class Grid:
     def __init__(self, puzzle = None):
         if puzzle:
             f = open(puzzle)
-            self._grid = [[Square(n, v) for v in list(line.strip("\n"))] for line in f]
+            self._grid = [[Square(gridSize, v) for v in list(line.strip("\n"))] for line in f]
         else:
-            self._grid = [[Square(n) for i in range(0,n)] for j in range(0,n)]
+            self._grid = [[Square(gridSize) for i in range(0,gridSize)] for j in range(0,gridSize)]
 
 
     # html          Generate HTML representation of the sudoku grid
@@ -120,14 +126,14 @@ class Grid:
                 
                 # Determine what border classes to apply
                 classes = []
-                if j == n - 1:
+                if j == gridSize - 1:
                     classes.append("right")
-                elif j % minigrid == 0:
+                elif j % miniGridSize == 0:
                     classes.append("left")
                 
-                if i % minigrid == 0:
+                if i % miniGridSize == 0:
                     classes.append("top")
-                elif i == n - 1:
+                elif i == gridSize - 1:
                     classes.append("bottom")
 
                 (cellClass, cellValue) = cell.html()
@@ -210,96 +216,11 @@ class Grid:
     # Returns:      True if the puzzle is solved. False otherwise
     #
     def isSolved(self):
-        for i in range(0, n):
-            for j in range(0, n):
+        for i in range(0, gridSize):
+            for j in range(0, gridSize):
                 if _grid[i][j].isSolved() is False:
                     return False
         return True
 
 
-# ruleOutBasedOnKnowns  Reduce based on solved Squares in the same row/column/subgrid
-#
-# Inputs:
-#               g       Grid to work on
-#               i       Row index of Square to reduce
-#               j       Column index of Square to reduce
-#
-# Returns:  True if we've just solved the Square
-#
-def ruleOutBasedOnKnowns(g, i, j):
-    r = Square.getKnownValues(g.getRow(i,j))
-    print("\tRemoving {} based on row".format(r))
-    if g.reduce(i,j,r):
-        return True
 
-    r = Square.getKnownValues(g.getCol(i,j))
-    print("\tRemoving {} based on col".format(r))
-    if g.reduce(i,j,r):
-        return True
-        
-    r = Square.getKnownValues(g.getSub(i,j))
-    print("\tRemoving {} based on sub".format(r))
-    if g.reduce(i,j,r):
-        return True
-
-    return False
-
-
-# removeTwinsRow        Given a Square, remove any twins from that row
-#
-# Inputs:
-#               g       Grid to work on
-#               i       Index for row to find/remove twins from
-#
-def removeTwinsRow(g, i):
-    row = g.getRow(i, 0)
-    (twins, first, second) = Square.getTwins(row)
-    if twins is None:
-        return
-
-    print("Found {} in row {}".format(twins, i))
-    for square in row:
-        if square is not first and square is not second:
-            square.reduce(twins)
-
-
-# removeTwinsCol        Given a Square, remove any twins from that column
-#
-# Inputs:
-#               g       Grid to work on
-#               j       Index for column to find/remove twins from
-#
-def removeTwinsCol(g, j):
-    col = g.getCol(0, j)
-    (twins, first, second) = Square.getTwins(col)
-    if twins is None:
-        return
-
-    print("Found {} in column {}".format(twins, j))
-    for square in col:
-        if square is not first and square is not second:
-            square.reduce(twins)
-
-
-def solve(g, d):
-    # Iterate the grid as many times as requested
-    for x in range(0, d):
-        # Check each cell
-        for i in range(0, n):
-            for j in range(0, n):
-                # Skip cells that are already solved
-                if g.get(i,j).isSolved():
-                    continue
-
-                print("Solving ({},{})".format(i,j))
-                
-                # If we've just solved the cell, move on
-                if ruleOutBasedOnKnowns(g, i,j) is True:
-                    continue
-
-        # Remove twins
-        for i in range(0, n):
-            removeTwinsRow(g, i)
-
-        for j in range(0, n):
-            removeTwinsCol(g, j)

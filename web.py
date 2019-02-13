@@ -2,6 +2,7 @@ from flask import Flask
 app = Flask(__name__)
 
 from sudoku import *
+from solve import solve
 
 @app.route("/")
 def main():
