@@ -60,42 +60,46 @@ def singletons(squares):
 
     # Make list of singleton values found
     singles = [k for k,v in freqs.items() if v == 1]
-    print(freqs)
-    print("Found singletons: {}".format(singles))
+    print("\tFound singletons: {}".format(singles))
 
-    #for sq in squares:
-    #    for s in singles: #TODO can this undo work we just did??
-    #        if s in sq.values: 
-    #            sq.set(s) #TODO this is broken for sure (causes duplicates and empties)
+    for sq in squares:
+        for s in singles: #TODO can this undo work we just did??
+            if s in sq.values: 
+                print("\tSetting {} to {}".format(sq.values, s))
+                sq.set(s) #TODO this is broken for sure (causes duplicates and empties)
+
+
+def solverApply(g, func, rows = True, cols = True, subs = True):
+    productive = True
+
+    while productive:
+        productive = False
+        if rows:
+            for i in range(0, gridSize):
+                print("Row {}".format(i))
+                if func(g.getRow(i, 0)):
+                    productive = True
+
+        if cols:
+            for j in range(0, gridSize):
+                print("Column {}".format(j))
+                if func(g.getCol(0, j)):
+                    productive = True
+
+        if subs:
+            for a in range(0, miniGridSize):
+                for b in range(0, miniGridSize):
+                    print("Subgrid {},{}".format(a,b))
+                    if func(g.getSubByNum(a,b)):
+                        productive = True
+
 
 
 def solve(g, d):
-    productive = True
-    r = 0
-    
-    # Iterate the grid as long as we're productive
-    while productive:
-        productive = False
-        r += 1
-        print("Round {}".format(r))
+    sequence = [ruleOutBasedOnKnowns, removeTwins, ruleOutBasedOnKnowns, singletons, ruleOutBasedOnKnowns, singletons, ruleOutBasedOnKnowns, singletons ] * 5
+    rs       = [True,                 True,         True,                True,       True,                 False,      True,                 False] * 5 
+    cs       = [True,                 True,         True,                False,      True,                 True,       True,                 False] * 5
+    ss       = [True,                 True,         True,                False,      True,                 False,      True,                 True] * 5
 
-        for i in range(0, gridSize):
-            if ruleOutBasedOnKnowns(g.getRow(i, 0)):
-                productive = True
-                print("\tReduced row {}".format(i))
-            #removeTwins(g.getRow(i, 0))
-            #singletons(g.getRow(i, 0))
-
-        for j in range(0, gridSize):
-            if ruleOutBasedOnKnowns(g.getCol(0, j)):
-                productive = True
-                print("\tReduced column {}".format(j))
-            #removeTwins(g.getCol(0, j))
-            #singletons(g.getCol(0, j))
-
-        for a in range(0, miniGridSize):
-            for b in range(0, miniGridSize):
-                if ruleOutBasedOnKnowns(g.getSubByNum(a,b)):
-                    productive = True
-                    print("\tReduced subgrid {}".format((a,b)))
-                #removeTwins(g.getSubByNum(a,b))
+    for i in range(0, d):
+        solverApply(g, sequence[i], rs[i], cs[i], ss[i])
