@@ -6,29 +6,20 @@ from sudoku import miniGridSize
 # ruleOutBasedOnKnowns  Reduce based on solved Squares in the same row/column/subgrid
 #
 # Inputs:
-#               g       Grid to work on
-#               i       Row index of Square to reduce
-#               j       Column index of Square to reduce
+#           squares     list<Square>
 #
-# Returns:  True if we've just solved the Square
+# Returns:  True if we've reduced any possibilities
 #
-def ruleOutBasedOnKnowns(g, i, j):
-    r = Square.getKnownValues(g.getRow(i,j))
-    print("\tRemoving {} based on row".format(r))
-    if g.reduce(i,j,r):
-        return True
+def ruleOutBasedOnKnowns(squares):
+    productive = False
 
-    r = Square.getKnownValues(g.getCol(i,j))
-    print("\tRemoving {} based on col".format(r))
-    if g.reduce(i,j,r):
-        return True
-        
-    r = Square.getKnownValues(g.getSub(i,j))
-    print("\tRemoving {} based on sub".format(r))
-    if g.reduce(i,j,r):
-        return True
+    knownValues = Square.getKnownValues(squares)
+    for sq in squares:
+        if sq.isSolved() is False:
+            if sq.reduce(knownValues):
+                productive = True
 
-    return False
+    return productive
 
 
 # removeTwins           Given a list<Square>, remove any twins
@@ -37,6 +28,8 @@ def ruleOutBasedOnKnowns(g, i, j):
 #           squares     list<Sqaure>
 #
 def removeTwins(squares):
+    productive = False
+
     (twins, first, second) = Square.getTwins(squares)
     if twins is None:
         return
@@ -44,7 +37,10 @@ def removeTwins(squares):
     print("Found {}".format(twins))
     for sq in squares:
         if sq is not first and sq is not second:
-            sq.reduce(twins)
+            if sq.reduce(twins):
+                productive = True
+
+    return productive
 
 
 # singletons            If there's only one Square in the row that can take on a value,
@@ -74,26 +70,32 @@ def singletons(squares):
 
 
 def solve(g, d):
-    # Iterate the grid as many times as requested
-    for x in range(0, d):
-        # Check each cell
-        for i in range(0, gridSize):
-            for j in range(0, gridSize):
-                # Skip cells that are already solved
-                if g.get(i,j).isSolved():
-                    continue
+    productive = True
+    r = 0
+    
+    # Iterate the grid as long as we're productive
+    while productive:
+        productive = False
+        r += 1
+        print("Round {}".format(r))
 
-                print("Solving ({},{})".format(i,j))
-                
-                # If we've just solved the cell, move on
-                if ruleOutBasedOnKnowns(g, i,j) is True:
-                    continue
-
-        # Remove twins
         for i in range(0, gridSize):
-            removeTwins(g.getRow(i, 0))
-            singletons(g.getRow(i, 0))
+            if ruleOutBasedOnKnowns(g.getRow(i, 0)):
+                productive = True
+                print("\tReduced row {}".format(i))
+            #removeTwins(g.getRow(i, 0))
+            #singletons(g.getRow(i, 0))
 
         for j in range(0, gridSize):
-            removeTwins(g.getCol(0, j))
-            singletons(g.getCol(0, j))
+            if ruleOutBasedOnKnowns(g.getCol(0, j)):
+                productive = True
+                print("\tReduced column {}".format(j))
+            #removeTwins(g.getCol(0, j))
+            #singletons(g.getCol(0, j))
+
+        for a in range(0, miniGridSize):
+            for b in range(0, miniGridSize):
+                if ruleOutBasedOnKnowns(g.getSubByNum(a,b)):
+                    productive = True
+                    print("\tReduced subgrid {}".format((a,b)))
+                #removeTwins(g.getSubByNum(a,b))

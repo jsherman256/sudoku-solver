@@ -43,11 +43,12 @@ class Square:
     # Inputs:
     #           s   set<int> of values to rule out
     #
-    # Returns:      True if we've solved the Square just now
+    # Returns:      True if we've reduced any possibilties
     #
     def reduce(self, s):
+        oldSet = self.values.copy()
         self.values -= set(s)
-        return self.isSolved()
+        return (oldSet != self.values)
 
 
     # html          Get info used for rendering Square as HTML
@@ -195,6 +196,18 @@ class Grid:
         return [x[j] for x in self._grid]
 
 
+    # getSubByNum   Get all Squares  given an x,y coord of the subgrid itself 
+    #
+    # Inputs:
+    #           a   Subgrid row index
+    #           b   Subgrid column index
+    #
+    # Returns:      All Squares from the selected subgrid
+    #
+    def getSubByNum(self, a, b):
+        return self.getSub(a*miniGridSize, b*miniGridSize)
+
+
     # getSub        Get all Square objects in the same subgrid as a given Square
     #
     # Inputs:
@@ -205,9 +218,9 @@ class Grid:
     #
     # TODO make this independent of the puzzle size
     def getSub(self, i, j):
-        i = math.floor(i/3)
-        j = math.floor(j/3)
-        l = [x[j*3:(j+1)*3] for x in self._grid[i*3:(i+1)*3]]
+        i = math.floor(i/miniGridSize)
+        j = math.floor(j/miniGridSize)
+        l = [x[j*miniGridSize:(j+1)*miniGridSize] for x in self._grid[i*miniGridSize:(i+1)*miniGridSize]]
         return [i for x in l for i in x] # Flatten the list
 
 
