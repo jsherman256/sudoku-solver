@@ -43,6 +43,22 @@ def removeTwins(squares):
     return productive
 
 
+def removeTwinsV2(squares):
+    productive = False
+
+    twins = Square.getTwinsV2(squares)
+    if twins is None:
+        return
+
+    print("Found {}".format(twins))
+    for t in twins:
+        for s in squares:
+            if s.values is not set(t):
+                print("Reducing {} from {}".format(set(t), s.values))
+                if s.reduce(set(t)):
+                    productive = True
+
+
 # singletons            If there's only one Square in the row that can take on a value,
 #                       then that Square must have that value
 #
@@ -63,10 +79,10 @@ def singletons(squares):
     print("\tFound singletons: {}".format(singles))
 
     for sq in squares:
-        for s in singles: #TODO can this undo work we just did??
+        for s in singles:
             if s in sq.values: 
                 print("\tSetting {} to {}".format(sq.values, s))
-                sq.set(s) #TODO this is broken for sure (causes duplicates and empties)
+                sq.set(s)
 
 
 def solverApply(g, func, rows = True, cols = True, subs = True):

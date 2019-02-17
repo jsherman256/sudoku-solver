@@ -1,0 +1,13 @@
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+<table>
+    {% for row in grid._grid %}
+    {% set rowloop = loop %}
+	<tr>
+        {% for square in row %}
+        <td class='{{ square.cssClass() }} {{ grid.cssClass(rowloop.index0, loop.index0) }}'>{{ square.getValues() }}</td>
+        {% endfor %}
+	</tr>
+    {% endfor %}
+</table>
+<br />
+<a href='/solve/{{ puzzle }}/{{ iterations + 1 }}'>Solve (more)</a>

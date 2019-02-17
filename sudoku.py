@@ -51,19 +51,24 @@ class Square:
         return (oldSet != self.values)
 
 
-    # html          Get info used for rendering Square as HTML
-    #
-    # Returns:      tuple(CSS class to use for display, value(s) to display)
-    #           
-    def html(self):
+    def cssClass(self):
         if self.isSolved():
-            return ('solved', str(list(self.values)[0]))
+            return 'solved'
         elif self.isUnsolved():
-            return ('','')
+            return ''
         else:
-            return ('hints', ' '.join(str(x) for x in self.values))
+            return 'hints'
 
-   
+
+    def getValues(self):
+        if self.isSolved():
+            return str(list(self.values)[0])
+        elif self.isUnsolved():
+            return ''
+        else:
+            return ' '.join(str(x) for x in self.values)
+
+
     # getKnownValues    Given a list of Squares, create a set<int> of all solved values
     #
     # Inputs:
@@ -75,6 +80,7 @@ class Square:
     def getKnownValues(squares):
         knownValues = set([list(s.values)[0] for s in squares if s.isSolved()])
         return knownValues
+
 
     # getTwins          Given a list of Squares, find any twins (two cells with
     #                   identical pair possibilities (e.g. both can only be 4, 7)
@@ -97,6 +103,14 @@ class Square:
 
         return (None, None, None)
 
+    @staticmethod
+    def getTwinsV2(squares):
+        # Select only unsolved squares with exactly 2 possibilities
+        values = list(set([tuple(s.values) for s in squares if len(s.values) == 2]))
+        return values
+
+
+
 
 class Grid:
     # A 2D list of Square objects representing the sudoku grid
@@ -116,35 +130,19 @@ class Grid:
             self._grid = [[Square(gridSize) for i in range(0,gridSize)] for j in range(0,gridSize)]
 
 
-    # html          Generate HTML representation of the sudoku grid
-    #
-    def html(self, puzzle, solveCount = 0):
-        h = '<link rel="stylesheet" type="text/css" href="/static/style.css">'
-        h += "<table>\n"
-        for i,row in enumerate(self._grid):
-            h += "\t<tr>\n"
-            for j,cell in enumerate(row):
-                
-                # Determine what border classes to apply
-                classes = []
-                if j == gridSize - 1:
-                    classes.append("right")
-                elif j % miniGridSize == 0:
-                    classes.append("left")
-                
-                if i % miniGridSize == 0:
-                    classes.append("top")
-                elif i == gridSize - 1:
-                    classes.append("bottom")
+    def cssClass(self, i, j):
+        classes = []
+        if j == gridSize - 1:
+            classes.append("right")
+        elif j % miniGridSize == 0:
+            classes.append("left")
+        
+        if i % miniGridSize == 0:
+            classes.append("top")
+        elif i == gridSize - 1:
+            classes.append("bottom")
 
-                (cellClass, cellValue) = cell.html()
-                classes.append(cellClass)
-
-                h += "\t\t<td class='{}'>{}</td>\n".format(' '.join(classes), cellValue)
-            h += "\t</tr>\n"
-        h += "</table>"
-        h += "<br /><a href='{}'>Solve (more)</a>".format("/solve/{}/{}".format(puzzle, solveCount+1))
-        return h
+        return ' '.join(classes)
 
 
     # get           Get a reference to a Square object in the Grid
@@ -216,7 +214,6 @@ class Grid:
     #
     # Returns:      All Squares in the same subgrid as (i,j) as a flattened list
     #
-    # TODO make this independent of the puzzle size
     def getSub(self, i, j):
         i = math.floor(i/miniGridSize)
         j = math.floor(j/miniGridSize)
