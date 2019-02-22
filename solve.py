@@ -3,6 +3,12 @@ from sudoku import Grid
 from sudoku import gridSize
 from sudoku import miniGridSize
 
+ROW = 0x01
+COL = 0x02
+SUB = 0x04
+ALL = ROW | COL | SUB
+
+
 # ruleOutBasedOnKnowns  Reduce based on solved Squares in the same row/column/subgrid
 #
 # Inputs:
@@ -78,31 +84,31 @@ def removeTriplets(squares):
 
     print("Found {}".format(values))
     for sq in squares:
-        if sq is not in triplets:
+        if sq not in triplets:
             if sq.reduce(values):
                 productive = True
 
     return productive
 
 
-def solverApply(g, func, rows = True, cols = True, subs = True):
+def solverApply(g, func, scope):
     productive = True
 
     while productive:
         productive = False
-        if rows:
+        if scope & ROW:
             for i in range(0, gridSize):
                 print("Row {}".format(i))
                 if func(g.getRow(i, 0)):
                     productive = True
 
-        if cols:
+        if scope & COL:
             for j in range(0, gridSize):
                 print("Column {}".format(j))
                 if func(g.getCol(0, j)):
                     productive = True
 
-        if subs:
+        if scope & SUB:
             for a in range(0, miniGridSize):
                 for b in range(0, miniGridSize):
                     print("Subgrid {},{}".format(a,b))
@@ -112,10 +118,22 @@ def solverApply(g, func, rows = True, cols = True, subs = True):
 
 
 def solve(g, d):
-    sequence = [ruleOutBasedOnKnowns, removeTwins, ruleOutBasedOnKnowns, singletons, ruleOutBasedOnKnowns, singletons, ruleOutBasedOnKnowns, singletons ] * 5
-    rs       = [True,                 True,         True,                True,       True,                 False,      True,                 False] * 5 
-    cs       = [True,                 True,         True,                False,      True,                 True,       True,                 False] * 5
-    ss       = [True,                 True,         True,                False,      True,                 False,      True,                 True] * 5
-
+    sequence = [
+                (ruleOutBasedOnKnowns, ALL),
+                (removeTriplets, ALL),
+               ] * 10
+    """(ruleOutBasedOnKnowns, ALL),
+    (removeTwins, ALL),
+    (ruleOutBasedOnKnowns, ALL),
+    (singletons, ROW),
+    (ruleOutBasedOnKnowns, ALL),
+    (singletons, COL),
+    (ruleOutBasedOnKnowns, ALL),
+    (singletons, SUB),
+   ] * 10"""
+                
     for i in range(0, d):
-        solverApply(g, sequence[i], rs[i], cs[i], ss[i])
+        solverApply(g, sequence[i][0], sequence[i][1])
+
+
+
