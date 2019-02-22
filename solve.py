@@ -121,16 +121,17 @@ def solve(g, d):
     sequence = [
                 (ruleOutBasedOnKnowns, ALL),
                 (removeTriplets, ALL),
+                (ruleOutBasedOnKnowns, ALL),
+                (removeTwins, ALL),
+                (ruleOutBasedOnKnowns, ALL),
+                (removeTriplets, ALL),
+                (ruleOutBasedOnKnowns, ALL),
+                (singletons, ROW),
+                (ruleOutBasedOnKnowns, ALL),
+                (singletons, COL),
+                (ruleOutBasedOnKnowns, ALL),
+                (singletons, SUB),
                ] * 10
-    """(ruleOutBasedOnKnowns, ALL),
-    (removeTwins, ALL),
-    (ruleOutBasedOnKnowns, ALL),
-    (singletons, ROW),
-    (ruleOutBasedOnKnowns, ALL),
-    (singletons, COL),
-    (ruleOutBasedOnKnowns, ALL),
-    (singletons, SUB),
-   ] * 10"""
                 
     for i in range(0, d):
         solverApply(g, sequence[i][0], sequence[i][1])
