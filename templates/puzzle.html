@@ -1,4 +1,5 @@
 <link rel="stylesheet" type="text/css" href="/static/style.css">
+<h1>{{ puzzle }}</h1>
 <table>
     {% for row in grid._grid %}
     {% set rowloop = loop %}
@@ -10,4 +11,5 @@
     {% endfor %}
 </table>
 <br />
-<a href='/solve/{{ puzzle }}/{{ iterations + 1 }}'>Solve (more)</a>
+<a href='/solve/{{ puzzle }}/{{ iterations + 1 }}'>Solve (more)</a><br />
+<a href='/puzzles'>Back to puzzle list</a>

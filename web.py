@@ -5,6 +5,13 @@ app = Flask(__name__)
 from sudoku import *
 from solve import solve
 
+import os
+
+@app.route("/puzzles/")
+def listPuzzles():
+    puzzles = os.listdir("puzzles")
+    return render_template("list.html", puzzles = puzzles)
+
 @app.route("/puzzle/<puzzle>")
 @app.route("/solve/<puzzle>/<int:iterations>")
 def load(puzzle, iterations = 0):
