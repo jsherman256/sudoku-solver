@@ -43,22 +43,6 @@ def removeTwins(squares):
     return productive
 
 
-def removeTwinsV2(squares):
-    productive = False
-
-    twins = Square.getTwinsV2(squares)
-    if twins is None:
-        return
-
-    print("Found {}".format(twins))
-    for t in twins:
-        for s in squares:
-            if s.values is not set(t):
-                print("Reducing {} from {}".format(set(t), s.values))
-                if s.reduce(set(t)):
-                    productive = True
-
-
 # singletons            If there's only one Square in the row that can take on a value,
 #                       then that Square must have that value
 #
@@ -83,6 +67,22 @@ def singletons(squares):
             if s in sq.values: 
                 print("\tSetting {} to {}".format(sq.values, s))
                 sq.set(s)
+
+
+def removeTriplets(squares):
+    productive = False
+
+    (values, triplets) = Square.getTriplets(squares)
+    if values is None:
+        return
+
+    print("Found {}".format(values))
+    for sq in squares:
+        if sq is not in triplets:
+            if sq.reduce(values):
+                productive = True
+
+    return productive
 
 
 def solverApply(g, func, rows = True, cols = True, subs = True):

@@ -2,6 +2,7 @@ gridSize     = 9
 miniGridSize = 3
 
 import math
+import itertools
 
 class Square:
     # A set<int> that stores the value(s) of the Square
@@ -103,13 +104,54 @@ class Square:
 
         return (None, None, None)
 
+
+    # isTriplets        Given a list of Squares, return the values from a set 
+    #                   of triplets if any are present. If none exist, return
+    #                   False
+    #
+    # Inputs:
+    #       squares     A list of Square objects
+    #
+    # Returns:          False if no triplets present
+    #                   The list of triplet values if present
+    #
     @staticmethod
-    def getTwinsV2(squares):
-        # Select only unsolved squares with exactly 2 possibilities
-        values = list(set([tuple(s.values) for s in squares if len(s.values) == 2]))
-        return values
+    def isTriplets(squares):
+        for s in squares:
+            # Each square must have 2 or 3 possible values
+            if len(s.values) < 2 or len(s.values) > 3:
+                print("{} has {} possibilities".format(s, len(s.values)))
+                return False
+        
+        # Concat all values from the squares
+        allValues = [list(s.values) for s in squares]
+        allValues = set([item for sublist in allValues for item in sublist])
+        print("All values: {}".format(allValues))
+        
+        # If the total values across all squares is 3, we've found a triplet!
+        if len(allValues) != 3:
+            return False
+        return allValues
 
 
+    # getTriplets       Given a list of Squares, find any triplets present
+    #
+    # Inputs:
+    #       squares     A list of Square objects
+    #
+    # Returns:          False if no triplets present
+    #                   A tuple (values, list<Squares>) of the triplet values
+    #                       and the triplet Squares themselves
+    #
+    @staticmethod
+    def getTriplets(squares):
+        squares = [s for s in squares if len(s.values) == 2 or len(s.values) == 3]
+        for c in itertools.combinations(squares, 3):
+            tripletValues = Square.isTriplets(c)
+            if tripletValues:
+                return (tripletValues, c)
+
+        return (None, None)
 
 
 class Grid:
