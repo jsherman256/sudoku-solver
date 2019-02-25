@@ -1,0 +1,19 @@
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+<h1>Enter a puzzle to solve</h1>
+<form action="/" method="POST">
+    <table>
+        {% for row in grid._grid %}
+        {% set rowloop = loop %}
+        <tr>
+            {% for square in row %}
+            <td class='{{ square.cssClass() }} {{ grid.cssClass(rowloop.index0, loop.index0) }}'>
+                <input type='text' class='inputSquare' maxlength='1' name='{{rowloop.index0 }}{{ loop.index0 }}' value='{{ square.getValues() }}'>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <input type='submit'>
+</form>
+<br />
+<a href='/puzzles'>Back to puzzle list</a>

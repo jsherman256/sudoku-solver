@@ -154,6 +154,12 @@ class Square:
         return (None, None)
 
 
+    @staticmethod
+    def verify(squares):
+        solved = [s.values.pop() for s in squares if s.isSolved()]
+        return (list(set(solved)).sort() == solved.sort())
+
+
 class Grid:
     # A 2D list of Square objects representing the sudoku grid
     _grid = None
@@ -162,12 +168,15 @@ class Grid:
     # __init__      Construct an empty grid or load a puzzle from a file
     #
     # Inputs:
-    #       puzzle  Path to the text file of a puzzle to load
+    #       puzzleFile      Path to the text file of a puzzle to load
+    #       request         POST request from a manually entered puzzle
     #
-    def __init__(self, puzzle = None):
-        if puzzle:
-            f = open(puzzle)
+    def __init__(self, puzzleFile = None, request = None):
+        if puzzleFile:
+            f = open(puzzleFile)
             self._grid = [[Square(gridSize, v) for v in list(line.strip("\n"))] for line in f]
+        elif request:
+            #self._grid = [[Square(gridSize, v) for v in 
         else:
             self._grid = [[Square(gridSize) for i in range(0,gridSize)] for j in range(0,gridSize)]
 
@@ -275,4 +284,17 @@ class Grid:
         return True
 
 
+    def verify(self):
+        for i in range(gridSize):
+            if Square.verify(self.getRow(i, 0)) is False:
+                return False
+        for j in range(gridSize):
+            if Square.verify(self.getCol(0, j)) is False:
+                return False
+        for a in range(miniGridSize):
+            for b in range(miniGridSize):
+                if Square.verify(self.getSub(a, b)) is False:
+                    return False
+
+        return True
 

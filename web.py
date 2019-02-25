@@ -7,6 +7,7 @@ from solve import solve
 
 import os
 
+
 @app.route("/puzzles/")
 def listPuzzles():
     puzzles = os.listdir("puzzles")
@@ -18,3 +19,8 @@ def load(puzzle, iterations = 0):
     grid = Grid("puzzles/" + puzzle)
     solve(grid, iterations)
     return render_template("puzzle.html", grid = grid, puzzle = puzzle, iterations = iterations)
+
+@app.route("/", methods=['GET', 'POST'])
+def enterPuzzle():
+    grid = Grid()
+    return render_template("entry.html", grid=grid)
